@@ -2,7 +2,7 @@
 using Orleans.Runtime.Configuration;
 using System;
 using System.Threading.Tasks;
-using TestStreamingGrainInterfaces;
+using TestGrainInterfaces;
 
 namespace TestStreamingClient
 {
@@ -36,7 +36,7 @@ namespace TestStreamingClient
             Console.WriteLine("Exited");
         }
 
-        private static Guid userGuid = Guid.NewGuid();
+        private static int userID = 10;
         private static Guid receiverGuid = Guid.NewGuid();
         private static Guid streamGuid = Guid.NewGuid();
 
@@ -44,7 +44,7 @@ namespace TestStreamingClient
         {
             GrainClient.Initialize(ClientConfiguration.LocalhostSilo());
 
-            var user = GrainClient.GrainFactory.GetGrain<IUserGrain>(userGuid);
+            var user = GrainClient.GrainFactory.GetGrain<IUserGrain>(userID);
             await user.BecomeProducer(streamGuid, "Users", "azurequeue");
 
             var receiver = GrainClient.GrainFactory.GetGrain<IInlineReceiverGrain>(receiverGuid);
@@ -53,7 +53,7 @@ namespace TestStreamingClient
 
         private static async Task Publish()
         {
-            var user = GrainClient.GrainFactory.GetGrain<IUserGrain>(userGuid);
+            var user = GrainClient.GrainFactory.GetGrain<IUserGrain>(userID);
             await user.Produce();
         }
     }

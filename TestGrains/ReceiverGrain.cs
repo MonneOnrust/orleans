@@ -5,9 +5,9 @@ using System;
 using System.Collections.Generic;
 using System.Text;
 using System.Threading.Tasks;
-using TestStreamingGrainInterfaces;
+using TestGrainInterfaces;
 
-namespace TestStreamingGrains
+namespace TestGrains
 {
     public class InlineReceiverGrain : Grain, IInlineReceiverGrain
     {

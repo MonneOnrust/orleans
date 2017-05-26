@@ -2,7 +2,7 @@
 using Orleans.Runtime.Configuration;
 using System;
 using System.Threading.Tasks;
-using TestRemotingGrainInterfaces;
+using TestGrainInterfaces;
 
 namespace TestRemotingClient
 {
@@ -35,10 +35,6 @@ namespace TestRemotingClient
 
             Console.WriteLine("Exited");
         }
-
-        private static Guid userGuid = Guid.NewGuid();
-        private static Guid receiverGuid = Guid.NewGuid();
-        private static Guid streamGuid = Guid.NewGuid();
 
         private static void Init()
         {

@@ -2,7 +2,7 @@
 using Orleans.Runtime.Configuration;
 using System;
 using System.Threading.Tasks;
-using TestPersistenceGrainInterfaces;
+using TestGrainInterfaces;
 
 namespace TestPersistenceClient
 {

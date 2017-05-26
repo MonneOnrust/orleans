@@ -2,10 +2,14 @@
 using System;
 using System.Threading.Tasks;
 
-namespace TestStreamingGrainInterfaces
+namespace TestGrainInterfaces
 {
-    public interface IUserGrain : IGrainWithGuidKey
+    public interface IUserGrain : IGrainWithIntegerKey
     {
+        Task<string> GetLastMessage();
+        Task<string> Say(string message);
+
+        #region Streaming
         Task BecomeProducer(Guid streamId, string streamNamespace, string providerToUse);
 
         Task StartPeriodicProducing();
@@ -15,6 +19,7 @@ namespace TestStreamingGrainInterfaces
         Task<int> GetNumberProduced();
 
         Task ClearNumberProduced();
-        Task Produce();
+        Task Produce(); 
+        #endregion
     }
 }

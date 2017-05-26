@@ -2,7 +2,7 @@
 using System;
 using System.Threading.Tasks;
 
-namespace TestStreamingGrainInterfaces
+namespace TestGrainInterfaces
 {
     public interface IReceiverGrain : IGrainWithGuidKey
     {

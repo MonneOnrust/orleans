@@ -4,37 +4,28 @@ using Orleans.Streams;
 using System;
 using System.Runtime.CompilerServices;
 using System.Threading.Tasks;
-using TestStreamingGrainInterfaces;
+using TestGrainInterfaces;
 
-namespace TestStreamingGrains
+namespace TestGrains
 {
-    //public class UserGrain : IAsync
-    //{
-    //    public UserGrain()
-    //    {
-    //        var m = new SimpleMessageStreamProvider();
-    //    }
-    //}
     public class UserGrain : Grain, IUserGrain
     {
+        private UserGrainState state = new UserGrainState();
+
         private IAsyncStream<int> producer;
         private int numProducedItems;
         private IDisposable producerTimer;
-        //internal Logger logger;
         internal readonly static string RequestContextKey = "RequestContextField";
         internal readonly static string RequestContextValue = "JustAString";
 
         public override Task OnActivateAsync()
         {
-            //logger = base.GetLogger("SampleStreaming_ProducerGrain " + base.IdentityString);
-            //logger.Info("OnActivateAsync");
             numProducedItems = 0;
             return Task.CompletedTask;
         }
 
         public Task BecomeProducer(Guid streamId, string streamNamespace, string providerToUse)
         {
-            //logger.Info("BecomeProducer");
             IStreamProvider streamProvider = base.GetStreamProvider(providerToUse);
             producer = streamProvider.GetStream<int>(streamId, streamNamespace);
             return Task.CompletedTask;
@@ -42,14 +33,12 @@ namespace TestStreamingGrains
 
         public Task StartPeriodicProducing()
         {
-            //logger.Info("StartPeriodicProducing");
             producerTimer = base.RegisterTimer(TimerCallback, null, TimeSpan.Zero, TimeSpan.FromMilliseconds(10));
             return Task.CompletedTask;
         }
 
         public Task StopPeriodicProducing()
         {
-            //logger.Info("StopPeriodicProducing");
             producerTimer.Dispose();
             producerTimer = null;
             return Task.CompletedTask;
@@ -57,7 +46,6 @@ namespace TestStreamingGrains
 
         public Task<int> GetNumberProduced()
         {
-            //logger.Info("GetNumberProduced {0}", numProducedItems);
             return Task.FromResult(numProducedItems);
         }
 
@@ -82,13 +70,33 @@ namespace TestStreamingGrains
             RequestContext.Set(RequestContextKey, RequestContextValue);
             await producer.OnNextAsync(numProducedItems);
             numProducedItems++;
-            //logger.Info("{0} (item={1})", caller, numProducedItems);
         }
 
         public override Task OnDeactivateAsync()
         {
-            //logger.Info("OnDeactivateAsync");
             return Task.CompletedTask;
         }
+
+
+        public Task<string> GetLastMessage()
+        {
+            return Task.FromResult(state.LastMessage);
+        }
+
+        public async Task<string> Say(string message)
+        {
+            System.Console.WriteLine($"User {this.GetPrimaryKeyLong()} speaking");
+
+            message = "User said " + message;
+
+            state.LastMessage = message;
+
+            return message;
+        }
+    }
+
+    public class UserGrainState
+    {
+        public string LastMessage { get; set; }
     }
 }

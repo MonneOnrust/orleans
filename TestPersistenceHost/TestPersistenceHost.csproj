@@ -17,8 +17,8 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\TestPersistenceGrainInterfaces\TestPersistenceGrainInterfaces.csproj" />
-    <ProjectReference Include="..\TestPersistenceGrains\TestPersistenceGrains.csproj" />
+    <ProjectReference Include="..\TestGrainInterfaces\TestGrainInterfaces.csproj" />
+    <ProjectReference Include="..\TestGrains\TestGrains.csproj" />
   </ItemGroup>
 
 </Project>

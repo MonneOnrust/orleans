@@ -6,6 +6,11 @@
 
   <ItemGroup>
     <PackageReference Include="Microsoft.Orleans.Core" Version="2.0.0-preview2-201705020000" />
+    <PackageReference Include="Microsoft.Orleans.OrleansProviders" Version="2.0.0-preview2-201705020000" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\TestGrainInterfaces\TestGrainInterfaces.csproj" />
   </ItemGroup>
 
 </Project>
