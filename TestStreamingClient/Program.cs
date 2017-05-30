@@ -45,10 +45,10 @@ namespace TestStreamingClient
             GrainClient.Initialize(ClientConfiguration.LocalhostSilo());
 
             var user = GrainClient.GrainFactory.GetGrain<IUserGrain>(userID);
-            await user.BecomeProducer(streamGuid, "Users", "azurequeue");
+            await user.BecomeProducer(streamGuid, "Users", "kinesis");
 
             var receiver = GrainClient.GrainFactory.GetGrain<IInlineReceiverGrain>(receiverGuid);
-            await receiver.BecomeConsumer(streamGuid, "Users", "azurequeue");
+            await receiver.BecomeConsumer(streamGuid, "Users", "kinesis");
         }
 
         private static async Task Publish()

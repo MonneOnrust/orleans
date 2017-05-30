@@ -54,22 +54,22 @@
       <HintPath>..\packages\Npgsql.3.2.2\lib\net451\Npgsql.dll</HintPath>
     </Reference>
     <Reference Include="Orleans, Version=2.0.0.0, Culture=neutral, processorArchitecture=MSIL">
-      <HintPath>..\packages\Microsoft.Orleans.Core.2.0.0-preview2-201705020000\lib\netstandard1.5\Orleans.dll</HintPath>
+      <HintPath>..\packages\Microsoft.Orleans.Core.2.0.0-preview2-201705140000\lib\netstandard1.5\Orleans.dll</HintPath>
     </Reference>
     <Reference Include="Orleans.PlatformServices, Version=2.0.0.0, Culture=neutral, processorArchitecture=MSIL">
-      <HintPath>..\packages\Microsoft.Orleans.PlatformServices.2.0.0-preview2-201705020000\lib\net462\Orleans.PlatformServices.dll</HintPath>
+      <HintPath>..\packages\Microsoft.Orleans.PlatformServices.2.0.0-preview2-201705140000\lib\net462\Orleans.PlatformServices.dll</HintPath>
     </Reference>
     <Reference Include="OrleansCodeGenerator, Version=2.0.0.0, Culture=neutral, processorArchitecture=MSIL">
-      <HintPath>..\packages\Microsoft.Orleans.OrleansCodeGenerator.2.0.0-preview2-201705020000\lib\netstandard1.5\OrleansCodeGenerator.dll</HintPath>
+      <HintPath>..\packages\Microsoft.Orleans.OrleansCodeGenerator.2.0.0-preview2-201705140000\lib\netstandard1.5\OrleansCodeGenerator.dll</HintPath>
     </Reference>
     <Reference Include="OrleansProviders, Version=2.0.0.0, Culture=neutral, processorArchitecture=MSIL">
-      <HintPath>..\packages\Microsoft.Orleans.OrleansProviders.2.0.0-preview2-201705020000\lib\netstandard1.5\OrleansProviders.dll</HintPath>
+      <HintPath>..\packages\Microsoft.Orleans.OrleansProviders.2.0.0-preview2-201705140000\lib\netstandard1.5\OrleansProviders.dll</HintPath>
     </Reference>
     <Reference Include="OrleansRuntime, Version=2.0.0.0, Culture=neutral, processorArchitecture=MSIL">
-      <HintPath>..\packages\Microsoft.Orleans.OrleansRuntime.2.0.0-preview2-201705020000\lib\netstandard1.5\OrleansRuntime.dll</HintPath>
+      <HintPath>..\packages\Microsoft.Orleans.OrleansRuntime.2.0.0-preview2-201705140000\lib\netstandard1.5\OrleansRuntime.dll</HintPath>
     </Reference>
     <Reference Include="OrleansSQLUtils, Version=2.0.0.0, Culture=neutral, processorArchitecture=MSIL">
-      <HintPath>..\packages\Microsoft.Orleans.OrleansSQLUtils.2.0.0-preview2-201705020000\lib\netstandard1.5\OrleansSQLUtils.dll</HintPath>
+      <HintPath>..\packages\Microsoft.Orleans.OrleansSQLUtils.2.0.0-preview2-201705140000\lib\netstandard1.5\OrleansSQLUtils.dll</HintPath>
     </Reference>
     <Reference Include="System" />
     <Reference Include="System.AppContext, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a, processorArchitecture=MSIL">

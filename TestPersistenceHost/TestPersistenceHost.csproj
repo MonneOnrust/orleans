@@ -10,8 +10,8 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="Microsoft.Orleans.OrleansSQLUtils" Version="2.0.0-preview2-201705020000" />
-    <PackageReference Include="Microsoft.Orleans.Server" Version="2.0.0-preview2-201705020000" />
+    <PackageReference Include="Microsoft.Orleans.OrleansSQLUtils" Version="2.0.0-preview2-201705140000" />
+    <PackageReference Include="Microsoft.Orleans.Server" Version="2.0.0-preview2-201705140000" />
     <PackageReference Include="Npgsql" Version="3.1.9" />
     <PackageReference Include="System.Data.SqlClient" Version="4.3.0" />
   </ItemGroup>
