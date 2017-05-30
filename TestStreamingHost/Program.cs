@@ -36,7 +36,7 @@ namespace TestStreamingHostUser
         private static void AddKinesisStreamProvider(ClusterConfiguration config)
         {
             var properties = GetKinesisStreamProviderProperties("kinesis", "connectionstring", 1, "mydeploymentid", 4096, PersistentStreamProviderState.None);
-            config.Globals.RegisterStreamProvider<KinesisQueueStreamProvider>("kinesis", properties);
+            config.Globals.RegisterStreamProvider<KinesisStreamProvider>("kinesis", properties);
         }
 
         private static Dictionary<string, string> GetKinesisStreamProviderProperties(string providerName, string connectionString, int numberOfQueues, string deploymentId, int cacheSize , PersistentStreamProviderState startupState/*, PersistentStreamProviderConfig persistentStreamProviderConfig*/)
@@ -50,7 +50,7 @@ namespace TestStreamingHostUser
                 { "NumQueues", numberOfQueues.ToString() },
                 { "DeploymentId", deploymentId },
                 { "CacheSize", cacheSize.ToString() },
-                { "StartupState", startupState.ToString() },
+                //{ "StartupState", startupState.ToString() },
             };
 
             //persistentStreamProviderConfig?.WriteProperties(properties);

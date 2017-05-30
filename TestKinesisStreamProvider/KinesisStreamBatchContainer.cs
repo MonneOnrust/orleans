@@ -8,11 +8,8 @@ using Orleans.Streams;
 
 namespace TestKinesisStreamProvider
 {
-    /// <summary>
-    /// Second version of AzureQueueBatchContainer.  This version supports external serializers (like json)
-    /// </summary>
     [Serializable]
-    internal class KinesisQueueBatchContainer : IBatchContainer
+    internal class KinesisStreamBatchContainer : IBatchContainer
     {
         [JsonProperty]
         private EventSequenceTokenV2 sequenceToken;
@@ -35,7 +32,7 @@ namespace TestKinesisStreamProvider
         }
 
         [JsonConstructor]
-        public KinesisQueueBatchContainer(
+        public KinesisStreamBatchContainer(
             Guid streamGuid,
             String streamNamespace,
             List<object> events,
@@ -46,7 +43,7 @@ namespace TestKinesisStreamProvider
             this.sequenceToken = sequenceToken;
         }
 
-        public KinesisQueueBatchContainer(Guid streamGuid, String streamNamespace, List<object> events, Dictionary<string, object> requestContext)
+        public KinesisStreamBatchContainer(Guid streamGuid, String streamNamespace, List<object> events, Dictionary<string, object> requestContext)
         {
             if (events == null) throw new ArgumentNullException(nameof(events), "Message contains no events");
 

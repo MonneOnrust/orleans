@@ -10,49 +10,51 @@ using System.Threading.Tasks;
 
 namespace TestKinesisStreamProvider
 {
-    public class KinesisQueueAdapterReceiver : IQueueAdapterReceiver
+    // TODO mon: implement sequence number save instead of removing records from stream
+    // TODO mon: implement sharding. This class used an Azure queue for sharding. With Kinesis you can use a stream shard, but you can also use multiple streams with one shard. This
+    //           topic needs more design if every event gets its own stream.
+    // TODO mon: prevent double processing of events by 1 app (done by KCL through shard leasing) https://github.com/awslabs/amazon-kinesis-client/blob/master/src/main/java/com/amazonaws/services/kinesis/leases/impl/LeaseManager.java
+
+    public class KinesisStreamAdapterReceiver : IQueueAdapterReceiver
     {
         private readonly SerializationManager serializationManager;
-        private KinesisQueueDataManager queue;
+        private KinesisStream streamManager;
         private long lastReadMessage;
         private Task outstandingTask;
         private readonly Logger logger;
-        private readonly IKinesisQueueDataAdapter dataAdapter;
+        private readonly IKinesisStreamDataAdapter dataAdapter;
         private readonly List<PendingDelivery> pending;
 
         public QueueId Id { get; }
 
-        public static IQueueAdapterReceiver Create(SerializationManager serializationManager, QueueId queueId, string dataConnectionString, string deploymentId, IKinesisQueueDataAdapter dataAdapter, Logger logger, TimeSpan? messageVisibilityTimeout = null)
+        public static IQueueAdapterReceiver Create(SerializationManager serializationManager, QueueId queueId, string dataConnectionString, string deploymentId, IKinesisStreamDataAdapter dataAdapter, Logger logger, TimeSpan? messageVisibilityTimeout = null)
         {
             if (queueId == null) throw new ArgumentNullException(nameof(queueId));
             if (string.IsNullOrEmpty(dataConnectionString)) throw new ArgumentNullException(nameof(dataConnectionString));
             if (string.IsNullOrEmpty(deploymentId)) throw new ArgumentNullException(nameof(deploymentId));
             if (dataAdapter == null) throw new ArgumentNullException(nameof(dataAdapter));
             if (serializationManager == null) throw new ArgumentNullException(nameof(serializationManager));
+            if (logger == null) throw new ArgumentNullException(nameof(logger));
 
-            var queue = new KinesisQueueDataManager(queueId.ToString(), deploymentId, dataConnectionString, logger, messageVisibilityTimeout);
-            return new KinesisQueueAdapterReceiver(serializationManager, queueId, queue, dataAdapter, logger);
+            var queue = new KinesisStream(queueId.ToString(), deploymentId, dataConnectionString, logger, messageVisibilityTimeout);
+            return new KinesisStreamAdapterReceiver(serializationManager, queueId, queue, dataAdapter, logger);
         }
 
-        private KinesisQueueAdapterReceiver(SerializationManager serializationManager, QueueId queueId, KinesisQueueDataManager queue, IKinesisQueueDataAdapter dataAdapter, Logger logger)
+        private KinesisStreamAdapterReceiver(SerializationManager serializationManager, QueueId queueId, KinesisStream streamManager, IKinesisStreamDataAdapter dataAdapter, Logger logger)
         {
-            if (queueId == null) throw new ArgumentNullException(nameof(queueId));
-            if (queue == null) throw new ArgumentNullException(nameof(queue));
-            if (dataAdapter == null) throw new ArgumentNullException(nameof(dataAdapter));
-
-            Id = queueId;
-            this.serializationManager = serializationManager;
-            this.queue = queue;
+            this.Id = queueId;
+            this.streamManager = streamManager;
             this.dataAdapter = dataAdapter;
             this.logger = logger; //LogManager.GetLogger(GetType().Name, LoggerType.Provider);
+            this.serializationManager = serializationManager;
             this.pending = new List<PendingDelivery>();
         }
 
         public Task Initialize(TimeSpan timeout)
         {
-            if (queue != null) // check in case we already shut it down.
+            if (streamManager != null) // check in case we already shut it down.
             {
-                return queue.InitQueueAsync();
+                return streamManager.InitStreamAsync();
             }
             return Task.CompletedTask;
         }
@@ -67,8 +69,8 @@ namespace TestKinesisStreamProvider
             }
             finally
             {
-                // remember that we shut down so we never try to read from the queue again.
-                queue = null;
+                // remember that we shut down so we never try to read from the stream again.
+                streamManager = null;
             }
         }
 
@@ -76,25 +78,25 @@ namespace TestKinesisStreamProvider
         {
             try
             {
-                var queueRef = queue; // store direct ref, in case we are somehow asked to shutdown while we are receiving.    
-                if (queueRef == null) return new List<IBatchContainer>();
+                var streamManagerRef = streamManager; // store direct ref, in case we are somehow asked to shutdown while we are receiving.    
+                if (streamManagerRef == null) return new List<IBatchContainer>();
 
                 int count = maxCount < 0 || maxCount == QueueAdapterConstants.UNLIMITED_GET_QUEUE_MSG ?
-                    KinesisQueueMessage.MaxNumberOfMessagesToPeek : Math.Min(maxCount, KinesisQueueMessage.MaxNumberOfMessagesToPeek);
+                    KinesisStreamMessage.MaxNumberOfMessagesToPeek : Math.Min(maxCount, KinesisStreamMessage.MaxNumberOfMessagesToPeek);
 
-                var task = queueRef.GetQueueMessages(count);
+                var task = streamManagerRef.GetStreamMessagesAsync(count);
                 outstandingTask = task;
-                IEnumerable<KinesisQueueMessage> messages = await task;
+                IEnumerable<KinesisStreamMessage> messages = await task;
 
-                List<IBatchContainer> azureQueueMessages = new List<IBatchContainer>();
+                var kinesisStreamMessages = new List<IBatchContainer>();
                 foreach (var message in messages)
                 {
                     IBatchContainer container = this.dataAdapter.FromKinesisStreamMessage(message, lastReadMessage++);
-                    azureQueueMessages.Add(container);
+                    kinesisStreamMessages.Add(container);
                     this.pending.Add(new PendingDelivery(container.SequenceToken, message));
                 }
 
-                return azureQueueMessages;
+                return kinesisStreamMessages;
             }
             finally
             {
@@ -106,8 +108,8 @@ namespace TestKinesisStreamProvider
         {
             try
             {
-                var queueRef = queue; // store direct ref, in case we are somehow asked to shutdown while we are receiving.
-                if (messages.Count == 0 || queueRef == null) return;
+                var streamManagerRef = streamManager; // store direct ref, in case we are somehow asked to shutdown while we are receiving.
+                if (messages.Count == 0 || streamManagerRef == null) return;
                 // get sequence tokens of delivered messages
                 List<StreamSequenceToken> deliveredTokens = messages.Select(message => message.SequenceToken).ToList();
                 // find oldest delivered message
@@ -120,21 +122,20 @@ namespace TestKinesisStreamProvider
                 // remove all finalized deliveries from pending, regardless of if it was delivered or not.
                 pending.RemoveRange(0, finalizedDeliveries.Count);
                 // get the queue messages for all finalized deliveries that were delivered.
-                List<KinesisQueueMessage> deliveredCloudQueueMessages = finalizedDeliveries
+                List<KinesisStreamMessage> deliveredStreamMessages = finalizedDeliveries
                     .Where(finalized => deliveredTokens.Contains(finalized.Token))
                     .Select(finalized => finalized.Message)
                     .ToList();
-                if (deliveredCloudQueueMessages.Count == 0) return;
+                if (deliveredStreamMessages.Count == 0) return;
                 // delete all delivered queue messages from the queue.  Anything finalized but not delivered will show back up later
-                outstandingTask = Task.WhenAll(deliveredCloudQueueMessages.Select(queueRef.DeleteQueueMessage));
+                outstandingTask = Task.WhenAll(deliveredStreamMessages.Select(streamManagerRef.DeleteQueueMessage));
                 try
                 {
                     await outstandingTask;
                 }
                 catch (Exception exc)
                 {
-                    logger.Warn((int)ErrorCode.AzureQueue_15,
-                        $"Exception upon DeleteQueueMessage on queue {Id}. Ignoring.", exc);
+                    logger.Warn((int)ErrorCode.AzureQueue_15, $"Exception upon DeleteQueueMessage on queue {Id}. Ignoring.", exc);
                 }
             }
             finally
@@ -145,13 +146,13 @@ namespace TestKinesisStreamProvider
 
         private class PendingDelivery
         {
-            public PendingDelivery(StreamSequenceToken token, KinesisQueueMessage message)
+            public PendingDelivery(StreamSequenceToken token, KinesisStreamMessage message)
             {
                 this.Token = token;
                 this.Message = message;
             }
 
-            public KinesisQueueMessage Message { get; }
+            public KinesisStreamMessage Message { get; }
 
             public StreamSequenceToken Token { get; }
         }

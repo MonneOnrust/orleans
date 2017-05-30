@@ -1,10 +1,8 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio 15
-VisualStudioVersion = 15.0.26228.4
+VisualStudioVersion = 15.0.26430.6
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TestHostFramework", "TestHostFramework\TestHostFramework.csproj", "{2F30075A-343F-48E7-90D9-121A6C4AF9EB}"
-EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TestStreamingClient", "TestStreamingClient\TestStreamingClient.csproj", "{63E98598-E0ED-49E7-8401-6F3AFA91ADAF}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Streaming", "Streaming", "{BFEBA29E-DFBA-474F-9CFC-D2A617C41048}"
@@ -16,8 +14,6 @@ EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "TestPersistenceHost", "TestPersistenceHost\TestPersistenceHost.csproj", "{E59A1C1E-2F89-4D33-B31F-9B44FC0D0BBC}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "TestStreamingHost", "TestStreamingHost\TestStreamingHost.csproj", "{459643F6-EB27-414B-ABCE-F095172B13CB}"
-EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TestOverall", "TestOverall\TestOverall.csproj", "{D8AA70A2-6F70-460C-9DA9-C3061B37EE67}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Remoting", "Remoting", "{D8C60039-3E2D-4A8A-9A4A-5A0F2E4A08A9}"
 EndProject
@@ -39,10 +35,6 @@ Global
 		Release|Any CPU = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(ProjectConfigurationPlatforms) = postSolution
-		{2F30075A-343F-48E7-90D9-121A6C4AF9EB}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{2F30075A-343F-48E7-90D9-121A6C4AF9EB}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{2F30075A-343F-48E7-90D9-121A6C4AF9EB}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{2F30075A-343F-48E7-90D9-121A6C4AF9EB}.Release|Any CPU.Build.0 = Release|Any CPU
 		{63E98598-E0ED-49E7-8401-6F3AFA91ADAF}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{63E98598-E0ED-49E7-8401-6F3AFA91ADAF}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{63E98598-E0ED-49E7-8401-6F3AFA91ADAF}.Release|Any CPU.ActiveCfg = Release|Any CPU
@@ -59,10 +51,6 @@ Global
 		{459643F6-EB27-414B-ABCE-F095172B13CB}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{459643F6-EB27-414B-ABCE-F095172B13CB}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{459643F6-EB27-414B-ABCE-F095172B13CB}.Release|Any CPU.Build.0 = Release|Any CPU
-		{D8AA70A2-6F70-460C-9DA9-C3061B37EE67}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{D8AA70A2-6F70-460C-9DA9-C3061B37EE67}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{D8AA70A2-6F70-460C-9DA9-C3061B37EE67}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{D8AA70A2-6F70-460C-9DA9-C3061B37EE67}.Release|Any CPU.Build.0 = Release|Any CPU
 		{1A3552D7-1332-438B-B805-BAF2BBF87A9C}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{1A3552D7-1332-438B-B805-BAF2BBF87A9C}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{1A3552D7-1332-438B-B805-BAF2BBF87A9C}.Release|Any CPU.ActiveCfg = Release|Any CPU

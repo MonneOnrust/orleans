@@ -10,8 +10,8 @@ using Orleans.Providers;
 namespace TestKinesisStreamProvider
 {
     /// <summary> Factory class for Azure Queue based stream provider.</summary>
-    public class KinesisQueueAdapterFactory<TDataAdapter> : IQueueAdapterFactory
-        where TDataAdapter : IKinesisQueueDataAdapter
+    public class KinesisStreamAdapterFactory<TDataAdapter> : IQueueAdapterFactory
+        where TDataAdapter : IKinesisStreamDataAdapter
     {
         private string deploymentId;
         private string dataConnectionString;
@@ -86,7 +86,7 @@ namespace TestKinesisStreamProvider
         /// <summary>Creates the Azure Queue based adapter.</summary>
         public virtual Task<IQueueAdapter> CreateAdapter()
         {
-            var adapter = new KinesisQueueAdapter<TDataAdapter>(this.adaptorFactory(), this.SerializationManager, streamQueueMapper, dataConnectionString, deploymentId, providerName, logger, messageVisibilityTimeout);
+            var adapter = new KinesisStreamAdapter<TDataAdapter>(this.adaptorFactory(), this.SerializationManager, streamQueueMapper, dataConnectionString, deploymentId, providerName, logger, messageVisibilityTimeout);
             return Task.FromResult<IQueueAdapter>(adapter);
         }
 

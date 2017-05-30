@@ -4,21 +4,20 @@ using Orleans.Streams;
 using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
-using System.Text;
 using System.Threading.Tasks;
 
 namespace TestKinesisStreamProvider
 {
-    public class KinesisQueueAdapter<TDataAdapter> : IQueueAdapter
-        where TDataAdapter : IKinesisQueueDataAdapter
+    public class KinesisStreamAdapter<TDataAdapter> : IQueueAdapter
+        where TDataAdapter : IKinesisStreamDataAdapter
     {
-        protected readonly string DeploymentId;
+        protected readonly string DeploymentID;
         private readonly SerializationManager serializationManager;
         protected readonly string DataConnectionString;
         protected readonly TimeSpan? MessageVisibilityTimeout;
         private readonly HashRingBasedStreamQueueMapper streamQueueMapper;
-        protected readonly ConcurrentDictionary<QueueId, KinesisQueueDataManager> Queues = new ConcurrentDictionary<QueueId, KinesisQueueDataManager>();
-        protected readonly IKinesisQueueDataAdapter dataAdapter;
+        protected readonly ConcurrentDictionary<QueueId, KinesisStream> Streams = new ConcurrentDictionary<QueueId, KinesisStream>();
+        protected readonly IKinesisStreamDataAdapter dataAdapter;
 
         protected readonly Logger logger;
 
@@ -27,7 +26,7 @@ namespace TestKinesisStreamProvider
 
         public StreamProviderDirection Direction => StreamProviderDirection.ReadWrite;
 
-        public KinesisQueueAdapter(
+        public KinesisStreamAdapter(
             TDataAdapter dataAdapter,
             SerializationManager serializationManager,
             HashRingBasedStreamQueueMapper streamQueueMapper,
@@ -42,7 +41,7 @@ namespace TestKinesisStreamProvider
 
             this.serializationManager = serializationManager;
             DataConnectionString = dataConnectionString;
-            DeploymentId = deploymentId;
+            DeploymentID = deploymentId;
             Name = providerName;
             MessageVisibilityTimeout = messageVisibilityTimeout;
             this.streamQueueMapper = streamQueueMapper;
@@ -50,25 +49,24 @@ namespace TestKinesisStreamProvider
             this.logger = logger;
         }
 
-        public IQueueAdapterReceiver CreateReceiver(QueueId queueId)
-        {
-            return KinesisQueueAdapterReceiver.Create(this.serializationManager, queueId, DataConnectionString, DeploymentId, this.dataAdapter, logger, MessageVisibilityTimeout);
-        }
-
         public async Task QueueMessageBatchAsync<T>(Guid streamGuid, string streamNamespace, IEnumerable<T> events, StreamSequenceToken token, Dictionary<string, object> requestContext)
         {
-            if (token != null) throw new ArgumentException("KinesisQueue stream provider currently does not support non-null StreamSequenceToken.", nameof(token));
+            if (token != null) throw new ArgumentException("Kinesis stream provider currently does not support non-null StreamSequenceToken.", nameof(token));
 
-            var queueId = streamQueueMapper.GetQueueForStream(streamGuid, streamNamespace);
-            KinesisQueueDataManager queue;
-            if (!Queues.TryGetValue(queueId, out queue))
+            var queueID = streamQueueMapper.GetQueueForStream(streamGuid, streamNamespace);
+            if (!Streams.TryGetValue(queueID, out KinesisStream streamManager))
             {
-                var tmpQueue = new KinesisQueueDataManager(queueId.ToString(), DeploymentId, DataConnectionString, logger, MessageVisibilityTimeout);
-                await tmpQueue.InitQueueAsync();
-                queue = Queues.GetOrAdd(queueId, tmpQueue);
+                var tmpManager = new KinesisStream(queueID.ToString(), DeploymentID, DataConnectionString, logger, MessageVisibilityTimeout);
+                await tmpManager.InitStreamAsync();
+                streamManager = Streams.GetOrAdd(queueID, tmpManager);
             }
-            var cloudMsg = this.dataAdapter.ToKinesisStreamMessage(streamGuid, streamNamespace, events, requestContext);
-            await queue.AddQueueMessage(cloudMsg);
+            var streamMessage = this.dataAdapter.ToKinesisStreamMessage(streamGuid, streamNamespace, events, requestContext);
+            await streamManager.AddStreamMessageAsync(streamMessage);
+        }
+
+        public IQueueAdapterReceiver CreateReceiver(QueueId queueId)
+        {
+            return KinesisStreamAdapterReceiver.Create(this.serializationManager, queueId, DataConnectionString, DeploymentID, this.dataAdapter, logger, MessageVisibilityTimeout);
         }
     }
 }

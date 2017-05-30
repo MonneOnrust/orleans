@@ -37,9 +37,9 @@ namespace TestKinesisStreamProvider
     /// Utility class to encapsulate access to Azure queue storage.
     /// </summary>
     /// <remarks>
-    /// Used by Azure queue streaming provider.
+    /// Used by Kinesis streaming provider.
     /// </remarks>
-    public class KinesisQueueDataManager
+    public class KinesisStream
     {
         /// <summary> Name of the table queue instance is managing. </summary>
         public string KinesisStreamName { get; private set; }
@@ -49,25 +49,24 @@ namespace TestKinesisStreamProvider
         private readonly Logger logger;
         private readonly TimeSpan? messageVisibilityTimeout;
         private readonly KinesisClient kinesisClient;
-        private KinesisClient queue;
 
         /// <summary>
         /// Constructor.
         /// </summary>
-        /// <param name="queueName">Name of the queue to be connected to.</param>
-        /// <param name="storageConnectionString">Connection string for the Azure storage account used to host this table.</param>
+        /// <param name="streamName">Name of the stream to be connected to.</param>
+        /// <param name="kinesisConnectionString">Connection string for the Azure storage account used to host this table.</param>
         /// <param name="visibilityTimeout">A TimeSpan specifying the visibility timeout interval</param>
-        public KinesisQueueDataManager(string queueName, string storageConnectionString, Logger logger, TimeSpan? visibilityTimeout = null)
+        public KinesisStream(string streamName, string kinesisConnectionString, Logger logger, TimeSpan? visibilityTimeout = null)
         {
-            KinesisUtils.ValidateQueueName(queueName);
+            KinesisUtils.ValidateStreamName(streamName);
 
             this.logger = logger; //LogManager.GetLogger(this.GetType().Name, LoggerType.Runtime);
-            KinesisStreamName = queueName;
-            connectionString = storageConnectionString;
+            KinesisStreamName = streamName;
+            connectionString = kinesisConnectionString;
             messageVisibilityTimeout = visibilityTimeout;
 
             kinesisClient = KinesisUtils.GetKinesisClient(
-                queueName,
+                streamName,
                 connectionString,
                 KinesisQueueDefaultPolicies.QueueOperationRetryPolicy,
                 KinesisQueueDefaultPolicies.QueueOperationTimeout,
@@ -77,22 +76,22 @@ namespace TestKinesisStreamProvider
         /// <summary>
         /// Constructor.
         /// </summary>
-        /// <param name="queueName">Name of the queue to be connected to.</param>
+        /// <param name="streamName">Name of the stream to be connected to.</param>
         /// <param name="deploymentId">The deployment id of the Azure service hosting this silo. It will be concatenated to the queueName.</param>
         /// <param name="storageConnectionString">Connection string for the Azure storage account used to host this table.</param>
         /// <param name="visibilityTimeout">A TimeSpan specifying the visibility timeout interval</param>
-        public KinesisQueueDataManager(string queueName, string deploymentId, string storageConnectionString, Logger logger, TimeSpan? visibilityTimeout = null)
+        public KinesisStream(string streamName, string deploymentId, string storageConnectionString, Logger logger, TimeSpan? visibilityTimeout = null)
         {
-            KinesisUtils.ValidateQueueName(queueName);
+            KinesisUtils.ValidateStreamName(streamName);
 
             this.logger = logger; //LogManager.GetLogger(this.GetType().Name, LoggerType.Runtime);
-            KinesisStreamName = deploymentId + "-" + queueName;
-            KinesisUtils.ValidateQueueName(KinesisStreamName);
+            KinesisStreamName = deploymentId + "-" + streamName;
+            KinesisUtils.ValidateStreamName(KinesisStreamName);
             connectionString = storageConnectionString;
             messageVisibilityTimeout = visibilityTimeout;
 
             kinesisClient = KinesisUtils.GetKinesisClient(
-                queueName,
+                streamName,
                 connectionString,
                 KinesisQueueDefaultPolicies.QueueOperationRetryPolicy,
                 KinesisQueueDefaultPolicies.QueueOperationTimeout,
@@ -102,30 +101,24 @@ namespace TestKinesisStreamProvider
         /// <summary>
         /// Initializes the connection to the queue.
         /// </summary>
-        public async Task InitQueueAsync()
+        public async Task InitStreamAsync()
         {
             var startTime = DateTime.UtcNow;
 
             try
             {
-                // Retrieve a reference to a queue.
-                // Not sure if this is a blocking call or not. Did not find an alternative async API. Should probably use BeginListQueuesSegmented.
-                //var myQueue = kinesisClient.GetQueueReference(KinesisStreamName);
-
                 // Create the queue if it doesn't already exist.
-                //bool didCreate = await myQueue.CreateIfNotExistsAsync();
-                await kinesisClient.EnsureStreamExists();
-                //queue = myQueue;
+                await kinesisClient.InitStreamAsync();
                 //logger.Info(/*ErrorCode.AzureQueue_01,*/ "{0} Azure storage queue {1}", (didCreate ? "Created" : "Attached to"), KinesisStreamName);
                 logger.Info($"{KinesisStreamName} Kinesis stream initialized");
             }
             catch (Exception exc)
             {
-                ReportErrorAndRethrow(exc, "CreateIfNotExist", ErrorCode.AzureQueue_02);
+                ReportErrorAndRethrow(exc, "InitStreamAsync", ErrorCode.AzureQueue_02);
             }
             finally
             {
-                CheckAlertSlowAccess(startTime, "InitQueue_Async");
+                CheckAlertSlowAccess(startTime, "InitStreamAsync");
             }
         }
 
@@ -188,28 +181,28 @@ namespace TestKinesisStreamProvider
         /// Adds a new message to the queue.
         /// </summary>
         /// <param name="message">Message to be added to the queue.</param>
-        public async Task AddQueueMessage(KinesisQueueMessage message)
+        public async Task AddStreamMessageAsync(KinesisStreamMessage message)
         {
             var startTime = DateTime.UtcNow;
-            if (logger.IsVerbose2) logger.Verbose2("Adding message {0} to queue: {1}", message, KinesisStreamName);
+            if (logger.IsVerbose2) logger.Verbose2("Adding message {0} to stream: {1}", message, KinesisStreamName);
             try
             {
-                await queue.PutRecordAsync(message);
+                await kinesisClient.PutRecordAsync(message);
             }
             catch (Exception exc)
             {
-                ReportErrorAndRethrow(exc, "AddQueueMessage", ErrorCode.AzureQueue_07);
+                ReportErrorAndRethrow(exc, "AddStreamMessageAsync", ErrorCode.AzureQueue_07);
             }
             finally
             {
-                CheckAlertSlowAccess(startTime, "AddQueueMessage");
+                CheckAlertSlowAccess(startTime, "AddStreamMessageAsync");
             }
         }
 
         /// <summary>
         /// Peeks in the queue for latest message, without dequeueing it.
         /// </summary>
-        public async Task<KinesisQueueMessage> PeekQueueMessage()
+        public async Task<KinesisStreamMessage> PeekQueueMessage()
         {
             // TODO: check when this goes off
 
@@ -238,7 +231,7 @@ namespace TestKinesisStreamProvider
         /// <summary>
         /// Gets a new message from the queue.
         /// </summary>
-        public async Task<KinesisQueueMessage> GetQueueMessage()
+        public async Task<KinesisStreamMessage> GetQueueMessage()
         {
             var startTime = DateTime.UtcNow;
             if (logger.IsVerbose2) logger.Verbose2("Getting a message from queue: {0}", KinesisStreamName);
@@ -266,26 +259,26 @@ namespace TestKinesisStreamProvider
         /// Gets a number of new messages from the queue.
         /// </summary>
         /// <param name="count">Number of messages to get from the queue.</param>
-        public async Task<IEnumerable<KinesisQueueMessage>> GetQueueMessages(int count = -1)
+        public async Task<IEnumerable<KinesisStreamMessage>> GetStreamMessagesAsync(int count = -1)
         {
             var startTime = DateTime.UtcNow;
             if (count == -1)
             {
-                count = KinesisQueueMessage.MaxNumberOfMessagesToPeek;
+                count = KinesisStreamMessage.MaxNumberOfMessagesToPeek;
             }
-            if (logger.IsVerbose2) logger.Verbose2("Getting up to {0} messages from queue: {1}", count, KinesisStreamName);
+            if (logger.IsVerbose2) logger.Verbose2("Getting up to {0} messages from stream: {1}", count, KinesisStreamName);
             try
             {
-                return await queue.GetRecordsAsync(count, messageVisibilityTimeout);
+                return await kinesisClient.GetRecordsAsync(count, messageVisibilityTimeout);
             }
             catch (Exception exc)
             {
-                ReportErrorAndRethrow(exc, "GetQueueMessages", ErrorCode.AzureQueue_10);
+                ReportErrorAndRethrow(exc, "GetStreamMessagesAsync", ErrorCode.AzureQueue_10);
                 return null; // Dummy statement to keep compiler happy
             }
             finally
             {
-                CheckAlertSlowAccess(startTime, "GetQueueMessages");
+                CheckAlertSlowAccess(startTime, "GetStreamMessagesAsync");
             }
         }
 
@@ -293,12 +286,12 @@ namespace TestKinesisStreamProvider
         /// Deletes a messages from the queue.
         /// </summary>
         /// <param name="message">A message to be deleted from the queue.</param>
-        public async Task DeleteQueueMessage(KinesisQueueMessage message)
+        public async Task DeleteQueueMessage(KinesisStreamMessage message)
         {
             // TODO: check when this goes off
             
             var startTime = DateTime.UtcNow;
-            if (logger.IsVerbose2) logger.Verbose2("Deleting a message from queue: {0}", KinesisStreamName);
+            if (logger.IsVerbose2) logger.Verbose2("Deleting a message from stream: {0}", KinesisStreamName);
             //try
             //{
             //    await queue.DeleteMessageAsync(message.Id, message.PopReceipt);
@@ -316,7 +309,7 @@ namespace TestKinesisStreamProvider
 
         internal async Task GetAndDeleteQueueMessage()
         {
-            KinesisQueueMessage message = await GetQueueMessage();
+            KinesisStreamMessage message = await GetQueueMessage();
             await DeleteQueueMessage(message);
         }
 
@@ -359,7 +352,7 @@ namespace TestKinesisStreamProvider
 
         private void ReportErrorAndRethrow(Exception exc, string operation, ErrorCode errorCode)
         {
-            var errMsg = String.Format("Error doing {0} for Azure storage queue {1} " + Environment.NewLine + "Exception = {2}", operation, KinesisStreamName, exc);
+            var errMsg = String.Format("Error doing {0} for Kinesis stream {1} " + Environment.NewLine + "Exception = {2}", operation, KinesisStreamName, exc);
             logger.Error((int)errorCode, errMsg, exc);
             throw new AggregateException(errMsg, exc);
         }

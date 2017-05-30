@@ -1,45 +1,30 @@
-﻿using Amazon;
-using Amazon.Kinesis;
+﻿using Amazon.Kinesis;
 using Amazon.Kinesis.Model;
-using Amazon.Runtime;
 using Orleans.Runtime;
 using System;
-using System.Collections.Generic;
 using System.IO;
 using System.Linq;
-using System.Net;
 using System.Threading.Tasks;
 
 namespace TestKinesisStreamProvider
 {
     public class KinesisClient
     {
+        private AmazonKinesisClient client;
+        private string streamName;
+
         private string ShardID;
         private string SequenceNumber;
 
-        private string streamName;
-        private AmazonKinesisClient client;
-
-        private AmazonKinesisConfig KinesisConfig
-        {
-            get
-            {
-                var config = new AmazonKinesisConfig
-                {
-                    ServiceURL = "http://localhost:4567"
-                };
-
-                return config;
-            }
-        }
-
-        public KinesisClient(string streamName)
+        public KinesisClient(string streamName, string serviceUrl = "http://localhost:4567")
         {
             this.streamName = streamName;
-            this.client = new AmazonKinesisClient("bla", "bla", KinesisConfig);
+
+            var config = new AmazonKinesisConfig { ServiceURL = serviceUrl };
+            this.client = new AmazonKinesisClient("bla", "bla", config);
         }
 
-        public async Task EnsureStreamExists()
+        public async Task InitStreamAsync()
         {
             var streams = await client.ListStreamsAsync();
 
@@ -58,13 +43,11 @@ namespace TestKinesisStreamProvider
             SequenceNumber = describeResponse.StreamDescription.Shards.First().SequenceNumberRange.StartingSequenceNumber;
         }
 
-        public async Task PutRecordAsync(KinesisQueueMessage message)
+        public async Task PutRecordAsync(KinesisStreamMessage message)
         {
             using (var stream = new MemoryStream())
-            using (var writer = new StreamWriter(stream))
             {
-                writer.Write(message.Content);
-                writer.Flush();
+                stream.Write(message.Content, 0, message.Content.Length);
                 stream.Position = 0;
 
                 var putRequest = new PutRecordRequest
@@ -81,9 +64,9 @@ namespace TestKinesisStreamProvider
             }
         }
 
-        public async Task<KinesisQueueMessage[]> GetRecordsAsync(int count, TimeSpan? messageVisibilityTimeout)
+        public async Task<KinesisStreamMessage[]> GetRecordsAsync(int count, TimeSpan? messageVisibilityTimeout)
         {
-            var iteratorRequest = new GetShardIteratorRequest { StreamName = streamName, ShardIteratorType = ShardIteratorType.AT_SEQUENCE_NUMBER, ShardId = ShardID, StartingSequenceNumber = SequenceNumber };
+            var iteratorRequest = new GetShardIteratorRequest { StreamName = streamName, ShardIteratorType = ShardIteratorType.AFTER_SEQUENCE_NUMBER, ShardId = ShardID, StartingSequenceNumber = SequenceNumber };
             var iteratorResponse = await client.GetShardIteratorAsync(iteratorRequest);
             iteratorResponse.EnsureSuccessResponse();
 
@@ -98,20 +81,25 @@ namespace TestKinesisStreamProvider
                 using (var reader = new StreamReader(record.Data))
                 {
                     data = reader.ReadToEnd();
+                    SequenceNumber = record.SequenceNumber;
                 }
 
                 Console.WriteLine($"Get record finished, sequencenumber: {record.SequenceNumber}, data: {data}");
             }
 
-            return new[] { new KinesisQueueMessage(getResponse.Records.First().Data.ToArray()) };
+            if (getResponse.Records.Count > 0)
+            {
+                return new[] { new KinesisStreamMessage(getResponse.Records.First().Data.ToArray()) };
+            }
+            else return new KinesisStreamMessage[0];
         }
     }
 
-    public class KinesisQueueMessage
+    public class KinesisStreamMessage
     {
         public const int MaxNumberOfMessagesToPeek = 1; // TODO mon: real implementation
 
-        public KinesisQueueMessage(byte[] content)
+        public KinesisStreamMessage(byte[] content)
         {
             this.Content = content;
         }
@@ -121,7 +109,7 @@ namespace TestKinesisStreamProvider
 
     public class KinesisUtils
     {
-        public static void ValidateQueueName(string name)
+        public static void ValidateStreamName(string name)
         {
             // TODO mon: real implementation
         }
