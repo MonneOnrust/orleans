@@ -29,6 +29,12 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Kinesis", "Kinesis", "{A0E1
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TestKinesisStreamProvider", "TestKinesisStreamProvider\TestKinesisStreamProvider.csproj", "{3C5C5A9E-F6D0-40A6-A248-B68413848EE1}"
 EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "EventSourcing", "EventSourcing", "{B1AD60CF-AD10-4E1D-8471-85E566CD018A}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TestEventSourcingClient", "TestEventSourcingClient\TestEventSourcingClient.csproj", "{2AB7B457-E3F3-4A1B-9C5A-80DFBAD7F566}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TestEventSourcingHost", "TestEventSourcingHost\TestEventSourcingHost.csproj", "{236AE950-301F-4FC6-9384-277681181705}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -71,6 +77,14 @@ Global
 		{3C5C5A9E-F6D0-40A6-A248-B68413848EE1}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{3C5C5A9E-F6D0-40A6-A248-B68413848EE1}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{3C5C5A9E-F6D0-40A6-A248-B68413848EE1}.Release|Any CPU.Build.0 = Release|Any CPU
+		{2AB7B457-E3F3-4A1B-9C5A-80DFBAD7F566}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{2AB7B457-E3F3-4A1B-9C5A-80DFBAD7F566}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{2AB7B457-E3F3-4A1B-9C5A-80DFBAD7F566}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{2AB7B457-E3F3-4A1B-9C5A-80DFBAD7F566}.Release|Any CPU.Build.0 = Release|Any CPU
+		{236AE950-301F-4FC6-9384-277681181705}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{236AE950-301F-4FC6-9384-277681181705}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{236AE950-301F-4FC6-9384-277681181705}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{236AE950-301F-4FC6-9384-277681181705}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -84,5 +98,7 @@ Global
 		{CCDB079C-B110-44D4-8BDB-BBE79C8752B6} = {D8C60039-3E2D-4A8A-9A4A-5A0F2E4A08A9}
 		{A0E1D0E1-9068-46C6-A156-BD1A5AD16984} = {BFEBA29E-DFBA-474F-9CFC-D2A617C41048}
 		{3C5C5A9E-F6D0-40A6-A248-B68413848EE1} = {A0E1D0E1-9068-46C6-A156-BD1A5AD16984}
+		{2AB7B457-E3F3-4A1B-9C5A-80DFBAD7F566} = {B1AD60CF-AD10-4E1D-8471-85E566CD018A}
+		{236AE950-301F-4FC6-9384-277681181705} = {B1AD60CF-AD10-4E1D-8471-85E566CD018A}
 	EndGlobalSection
 EndGlobal

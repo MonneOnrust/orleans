@@ -22,4 +22,7 @@ namespace TestGrainInterfaces
         Task Produce(); 
         #endregion
     }
+
+    public interface IJournaledUserGrain : IUserGrain
+    { }
 }
