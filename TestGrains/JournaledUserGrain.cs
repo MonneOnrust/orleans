@@ -5,11 +5,12 @@ using System.Text;
 using TestGrainInterfaces;
 using System.Threading.Tasks;
 using Orleans.Providers;
+using Newtonsoft.Json;
 
 namespace TestGrains
 {
     [LogConsistencyProvider(ProviderName = "StateStorage")]
-    [StorageProvider(ProviderName = "MemoryStorage")]
+    [StorageProvider(ProviderName = "Blob")]
     public class JournaledUserGrain : JournaledGrain<JournaledUserGrainState, UserSpokeEvent>, IJournaledUserGrain
     {
         public JournaledUserGrain()
@@ -61,10 +62,14 @@ namespace TestGrains
         }
     }
 
+    [Serializable]
     public class JournaledUserGrainState
     {
         public int ID { get; set; }
+
+        [JsonProperty]
         public int AmountOfMessagesSpoken { get; set; }
+        [JsonProperty]
         public string LastMessageSpoken { get; set; }
 
         public void Apply(UserSpokeEvent @event)

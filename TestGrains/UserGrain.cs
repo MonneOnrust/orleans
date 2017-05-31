@@ -1,4 +1,5 @@
-﻿using Orleans;
+﻿using Newtonsoft.Json;
+using Orleans;
 using Orleans.Runtime;
 using Orleans.Streams;
 using System;
@@ -95,8 +96,10 @@ namespace TestGrains
         }
     }
 
+    [Serializable]
     public class UserGrainState
     {
+        [JsonProperty]
         public string LastMessage { get; set; }
     }
 }

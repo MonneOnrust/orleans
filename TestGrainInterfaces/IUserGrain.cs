@@ -19,10 +19,10 @@ namespace TestGrainInterfaces
         Task<int> GetNumberProduced();
 
         Task ClearNumberProduced();
-        Task Produce(); 
+        Task Produce();
         #endregion
     }
 
-    public interface IJournaledUserGrain : IUserGrain
-    { }
+    public interface IPersistedUserGrain : IUserGrain { }
+    public interface IJournaledUserGrain : IUserGrain { }
 }

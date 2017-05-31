@@ -48,14 +48,14 @@ namespace TestPersistenceClient
 
         private static async Task Speak()
         {
-            var user = GrainClient.GrainFactory.GetGrain<IUserGrain>(10);
+            var user = GrainClient.GrainFactory.GetGrain<IPersistedUserGrain>(10);
             var message = await user.Say(new Random().Next(1000).ToString());
             Console.WriteLine(message);
         }
 
         private static async Task Repeat()
         {
-            var user = GrainClient.GrainFactory.GetGrain<IUserGrain>(10);
+            var user = GrainClient.GrainFactory.GetGrain<IPersistedUserGrain>(10);
             var message = await user.GetLastMessage();
             Console.WriteLine(message);
         }
