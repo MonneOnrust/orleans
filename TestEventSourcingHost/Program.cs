@@ -1,5 +1,6 @@
 ﻿using Orleans.Runtime.Configuration;
 using Orleans.Runtime.Host;
+using Orleans.Storage;
 using System;
 using System.Collections.Generic;
 
@@ -13,10 +14,11 @@ namespace TestEventSourcingHost
             config.Globals.DeploymentId = "MySiloDeployment";
             //config.Defaults.DefaultTraceLevel = Orleans.Runtime.Severity.Verbose2;
             //config.AddMemoryStorageProvider("MemoryStorage");
-            config.AddAzureBlobStorageProvider("Blob", @"DefaultEndpointsProtocol=https;AccountName=testmonne;AccountKey=P6ACvcp3lacr1mZFWPV3QmYANtpkJ17iPMbFJI6Ad+gMFgG9elSvlc3qS7q9puMZSwXN0PGq3njnbIRcxo291w==;EndpointSuffix=core.windows.net");
+            //config.AddAzureBlobStorageProvider("Blob", @"DefaultEndpointsProtocol=https;AccountName=testmonne;AccountKey=P6ACvcp3lacr1mZFWPV3QmYANtpkJ17iPMbFJI6Ad+gMFgG9elSvlc3qS7q9puMZSwXN0PGq3njnbIRcxo291w==;EndpointSuffix=core.windows.net");
 
             //var properties = new Dictionary<string, string> { { "DataConnectionString", "Service=http://localhost:8000" }, { "UseJsonFormat", "True" } };
-            //config.Globals.RegisterStorageProvider<Orleans.Storage.DynamoDBStorageProvider>("DynamoDB", properties);
+            var properties = new Dictionary<string, string> { { "DataConnectionString", "AccessKey=AKIAIMTMVIAUPWNFXNQA;SecretKey=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;Service=eu-central-1" }, { "UseJsonFormat", "True" } };
+            config.Globals.RegisterStorageProvider<DynamoDBStorageProvider>("DynamoDB", properties);
 
             config.Globals.RegisterLogConsistencyProvider<Orleans.EventSourcing.StateStorage.LogConsistencyProvider>("StateStorage");
 

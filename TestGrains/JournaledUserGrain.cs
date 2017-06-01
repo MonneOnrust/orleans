@@ -10,7 +10,7 @@ using Newtonsoft.Json;
 namespace TestGrains
 {
     [LogConsistencyProvider(ProviderName = "StateStorage")]
-    [StorageProvider(ProviderName = "Blob")]
+    [StorageProvider(ProviderName = "DynamoDB")]
     public class JournaledUserGrain : JournaledGrain<JournaledUserGrainState, UserSpokeEvent>, IJournaledUserGrain
     {
         public JournaledUserGrain()
