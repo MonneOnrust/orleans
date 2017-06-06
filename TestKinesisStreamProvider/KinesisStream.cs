@@ -39,7 +39,7 @@ namespace TestKinesisStreamProvider
     /// <remarks>
     /// Used by Kinesis streaming provider.
     /// </remarks>
-    public class KinesisStream
+    public class KinesisStreamShard
     {
         /// <summary> Name of the table queue instance is managing. </summary>
         public string KinesisStreamName { get; private set; }
@@ -56,7 +56,7 @@ namespace TestKinesisStreamProvider
         /// <param name="streamName">Name of the stream to be connected to.</param>
         /// <param name="kinesisConnectionString">Connection string for the Azure storage account used to host this table.</param>
         /// <param name="visibilityTimeout">A TimeSpan specifying the visibility timeout interval</param>
-        public KinesisStream(string streamName, string kinesisConnectionString, Logger logger, TimeSpan? visibilityTimeout = null)
+        public KinesisStreamShard(string streamName, string kinesisConnectionString, Logger logger, TimeSpan? visibilityTimeout = null)
         {
             KinesisUtils.ValidateStreamName(streamName);
 
@@ -80,7 +80,7 @@ namespace TestKinesisStreamProvider
         /// <param name="deploymentId">The deployment id of the Azure service hosting this silo. It will be concatenated to the queueName.</param>
         /// <param name="storageConnectionString">Connection string for the Azure storage account used to host this table.</param>
         /// <param name="visibilityTimeout">A TimeSpan specifying the visibility timeout interval</param>
-        public KinesisStream(string streamName, string deploymentId, string storageConnectionString, Logger logger, TimeSpan? visibilityTimeout = null)
+        public KinesisStreamShard(string streamName, string deploymentId, string storageConnectionString, Logger logger, TimeSpan? visibilityTimeout = null)
         {
             KinesisUtils.ValidateStreamName(streamName);
 
@@ -101,7 +101,7 @@ namespace TestKinesisStreamProvider
         /// <summary>
         /// Initializes the connection to the queue.
         /// </summary>
-        public async Task InitStreamAsync()
+        public async Task InitShardAsync()
         {
             var startTime = DateTime.UtcNow;
 
@@ -181,7 +181,7 @@ namespace TestKinesisStreamProvider
         /// Adds a new message to the queue.
         /// </summary>
         /// <param name="message">Message to be added to the queue.</param>
-        public async Task AddStreamMessageAsync(KinesisStreamMessage message)
+        public async Task AddMessageAsync(KinesisStreamMessage message)
         {
             var startTime = DateTime.UtcNow;
             if (logger.IsVerbose2) logger.Verbose2("Adding message {0} to stream: {1}", message, KinesisStreamName);

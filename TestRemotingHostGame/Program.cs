@@ -1,30 +1,28 @@
-﻿using Orleans.Providers.Streams.AzureQueue;
-using Orleans.Runtime;
-using Orleans.Runtime.Configuration;
+﻿using Orleans.Runtime.Configuration;
 using Orleans.Runtime.Host;
-using Orleans.Storage;
 using System;
-using System.Collections.Generic;
-using System.Linq;
 using System.Net;
 
-namespace TestStreamingHostGame
+namespace TestRemotingHost
 {
     class Program
     {
         static void Main(string[] args)
         {
             var config = new ClusterConfiguration();
-            config.Globals.DataConnectionString = @"DefaultEndpointsProtocol=https;AccountName=testmonne;AccountKey=P6ACvcp3lacr1mZFWPV3QmYANtpkJ17iPMbFJI6Ad+gMFgG9elSvlc3qS7q9puMZSwXN0PGq3njnbIRcxo291w==;EndpointSuffix=core.windows.net";
+            //config.Globals.DataConnectionString = @"DefaultEndpointsProtocol=https;AccountName=testmonne;AccountKey=P6ACvcp3lacr1mZFWPV3QmYANtpkJ17iPMbFJI6Ad+gMFgG9elSvlc3qS7q9puMZSwXN0PGq3njnbIRcxo291w==;EndpointSuffix=core.windows.net";
+            config.Globals.DataConnectionString = @"Data Source=orleansdb.cbyv9at5zqwv.eu-central-1.rds.amazonaws.com;Database=orleansdb;User Id=monne;Password=masterpassword;pooling=False;MultipleActiveResultSets=True";//:1433 
             config.Globals.DeploymentId = "Orleans-Docker";
             //config.Globals.DeploymentId = "mydeploymentid";
-            config.Globals.LivenessType = GlobalConfiguration.LivenessProviderType.AzureTable;
-            config.Globals.ReminderServiceType = GlobalConfiguration.ReminderServiceProviderType.AzureTable;
+            //config.Globals.LivenessType = GlobalConfiguration.LivenessProviderType.AzureTable;
+            //config.Globals.ReminderServiceType = GlobalConfiguration.ReminderServiceProviderType.AzureTable;
+            config.Globals.LivenessType = GlobalConfiguration.LivenessProviderType.SqlServer;
+            config.Globals.ReminderServiceType = GlobalConfiguration.ReminderServiceProviderType.SqlServer;
             config.Defaults.PropagateActivityId = true;
             config.Defaults.ProxyGatewayEndpoint = new IPEndPoint(IPAddress.Any, 10400);
-            config.Defaults.Port = 10301;
-            var ips = Dns.GetHostAddressesAsync(Dns.GetHostName()).Result;
-            config.Defaults.HostNameOrIPAddress = ips.Skip(1).FirstOrDefault()?.ToString();
+            config.Defaults.Port = 10300;
+            //var ips = Dns.GetHostAddressesAsync(Dns.GetHostName()).Result;
+            config.Defaults.HostNameOrIPAddress = "172.16.28.241"; // ips.Skip(1).FirstOrDefault()?.ToString();
 
             var siloHost = new SiloHost("MySilo", config);
             siloHost.InitializeOrleansSilo();

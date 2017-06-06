@@ -15,10 +15,10 @@ namespace TestKinesisStreamProvider
     //           topic needs more design if every event gets its own stream.
     // TODO mon: prevent double processing of events by 1 app (done by KCL through shard leasing) https://github.com/awslabs/amazon-kinesis-client/blob/master/src/main/java/com/amazonaws/services/kinesis/leases/impl/LeaseManager.java
 
-    public class KinesisStreamAdapterReceiver : IQueueAdapterReceiver
+    public class KinesisStreamShardAdapterReceiver : IQueueAdapterReceiver
     {
         private readonly SerializationManager serializationManager;
-        private KinesisStream streamManager;
+        private KinesisStreamShard streamManager;
         private long lastReadMessage;
         private Task outstandingTask;
         private readonly Logger logger;
@@ -36,11 +36,11 @@ namespace TestKinesisStreamProvider
             if (serializationManager == null) throw new ArgumentNullException(nameof(serializationManager));
             if (logger == null) throw new ArgumentNullException(nameof(logger));
 
-            var queue = new KinesisStream(queueId.ToString(), deploymentId, dataConnectionString, logger, messageVisibilityTimeout);
-            return new KinesisStreamAdapterReceiver(serializationManager, queueId, queue, dataAdapter, logger);
+            var queue = new KinesisStreamShard(queueId.ToString(), deploymentId, dataConnectionString, logger, messageVisibilityTimeout);
+            return new KinesisStreamShardAdapterReceiver(serializationManager, queueId, queue, dataAdapter, logger);
         }
 
-        private KinesisStreamAdapterReceiver(SerializationManager serializationManager, QueueId queueId, KinesisStream streamManager, IKinesisStreamDataAdapter dataAdapter, Logger logger)
+        private KinesisStreamShardAdapterReceiver(SerializationManager serializationManager, QueueId queueId, KinesisStreamShard streamManager, IKinesisStreamDataAdapter dataAdapter, Logger logger)
         {
             this.Id = queueId;
             this.streamManager = streamManager;
@@ -54,7 +54,7 @@ namespace TestKinesisStreamProvider
         {
             if (streamManager != null) // check in case we already shut it down.
             {
-                return streamManager.InitStreamAsync();
+                return streamManager.InitShardAsync();
             }
             return Task.CompletedTask;
         }

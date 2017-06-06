@@ -8,15 +8,15 @@ using System.Threading.Tasks;
 
 namespace TestKinesisStreamProvider
 {
-    public class KinesisStreamAdapter<TDataAdapter> : IQueueAdapter
+    public class KinesisStreamShardAdapter<TDataAdapter> : IQueueAdapter
         where TDataAdapter : IKinesisStreamDataAdapter
     {
         protected readonly string DeploymentID;
         private readonly SerializationManager serializationManager;
         protected readonly string DataConnectionString;
         protected readonly TimeSpan? MessageVisibilityTimeout;
-        private readonly HashRingBasedStreamQueueMapper streamQueueMapper;
-        protected readonly ConcurrentDictionary<QueueId, KinesisStream> Streams = new ConcurrentDictionary<QueueId, KinesisStream>();
+        private readonly HashRingBasedStreamQueueMapper streamShardMapper;
+        protected readonly ConcurrentDictionary<QueueId, KinesisStreamShard> Shards = new ConcurrentDictionary<QueueId, KinesisStreamShard>();
         protected readonly IKinesisStreamDataAdapter dataAdapter;
 
         protected readonly Logger logger;
@@ -26,10 +26,10 @@ namespace TestKinesisStreamProvider
 
         public StreamProviderDirection Direction => StreamProviderDirection.ReadWrite;
 
-        public KinesisStreamAdapter(
+        public KinesisStreamShardAdapter(
             TDataAdapter dataAdapter,
             SerializationManager serializationManager,
-            HashRingBasedStreamQueueMapper streamQueueMapper,
+            HashRingBasedStreamQueueMapper streamShardMapper,
             string dataConnectionString,
             string deploymentId,
             string providerName,
@@ -44,7 +44,7 @@ namespace TestKinesisStreamProvider
             DeploymentID = deploymentId;
             Name = providerName;
             MessageVisibilityTimeout = messageVisibilityTimeout;
-            this.streamQueueMapper = streamQueueMapper;
+            this.streamShardMapper = streamShardMapper;
             this.dataAdapter = dataAdapter;
             this.logger = logger;
         }
@@ -53,20 +53,20 @@ namespace TestKinesisStreamProvider
         {
             if (token != null) throw new ArgumentException("Kinesis stream provider currently does not support non-null StreamSequenceToken.", nameof(token));
 
-            var queueID = streamQueueMapper.GetQueueForStream(streamGuid, streamNamespace);
-            if (!Streams.TryGetValue(queueID, out KinesisStream streamManager))
+            var queueID = streamShardMapper.GetQueueForStream(streamGuid, streamNamespace);
+            if (!Shards.TryGetValue(queueID, out KinesisStreamShard shardManager))
             {
-                var tmpManager = new KinesisStream(queueID.ToString(), DeploymentID, DataConnectionString, logger, MessageVisibilityTimeout);
-                await tmpManager.InitStreamAsync();
-                streamManager = Streams.GetOrAdd(queueID, tmpManager);
+                var tmpManager = new KinesisStreamShard(queueID.ToString(), DeploymentID, DataConnectionString, logger, MessageVisibilityTimeout);
+                await tmpManager.InitShardAsync();
+                shardManager = Shards.GetOrAdd(queueID, tmpManager);
             }
             var streamMessage = this.dataAdapter.ToKinesisStreamMessage(streamGuid, streamNamespace, events, requestContext);
-            await streamManager.AddStreamMessageAsync(streamMessage);
+            await shardManager.AddMessageAsync(streamMessage);
         }
 
         public IQueueAdapterReceiver CreateReceiver(QueueId queueId)
         {
-            return KinesisStreamAdapterReceiver.Create(this.serializationManager, queueId, DataConnectionString, DeploymentID, this.dataAdapter, logger, MessageVisibilityTimeout);
+            return KinesisStreamShardAdapterReceiver.Create(this.serializationManager, queueId, DataConnectionString, DeploymentID, this.dataAdapter, logger, MessageVisibilityTimeout);
         }
     }
 }

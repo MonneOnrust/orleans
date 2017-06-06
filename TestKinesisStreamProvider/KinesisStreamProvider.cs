@@ -2,7 +2,7 @@
 
 namespace TestKinesisStreamProvider
 {
-    public class KinesisStreamProvider : PersistentStreamProvider<KinesisStreamAdapterFactory<KinesisStreamDataAdapter>>
+    public class KinesisStreamProvider : PersistentStreamProvider<KinesisStreamShardAdapterFactory<KinesisStreamDataAdapter>>
     {
     }
 }

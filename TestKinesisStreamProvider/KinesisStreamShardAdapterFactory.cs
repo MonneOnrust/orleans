@@ -10,16 +10,16 @@ using Orleans.Providers;
 namespace TestKinesisStreamProvider
 {
     /// <summary> Factory class for Azure Queue based stream provider.</summary>
-    public class KinesisStreamAdapterFactory<TDataAdapter> : IQueueAdapterFactory
+    public class KinesisStreamShardAdapterFactory<TDataAdapter> : IQueueAdapterFactory
         where TDataAdapter : IKinesisStreamDataAdapter
     {
         private string deploymentId;
         private string dataConnectionString;
         private string providerName;
         private int cacheSize;
-        private int numQueues;
+        private int numShards;
         private TimeSpan? messageVisibilityTimeout;
-        private HashRingBasedStreamQueueMapper streamQueueMapper;
+        private HashRingBasedStreamQueueMapper streamShardMapper;
         private IQueueAdapterCache adapterCache;
         private Func<TDataAdapter> adaptorFactory;
 
@@ -61,15 +61,15 @@ namespace TestKinesisStreamProvider
 
             cacheSize = SimpleQueueAdapterCache.ParseSize(config, 4096/*AzureQueueAdapterConstants.CacheSizeDefaultValue*/);
 
-            numQueues = 8;
-            if (config.Properties.TryGetValue("NumQueues", out string numQueuesString))
+            numShards = 8;
+            if (config.Properties.TryGetValue("NumQueues", out string numShardsString))
             {
-                if (!int.TryParse(numQueuesString, out numQueues))
+                if (!int.TryParse(numShardsString, out numShards))
                     throw new ArgumentException($"NumQueues invalid. Must be int");
             }
 
             this.providerName = providerName;
-            streamQueueMapper = new HashRingBasedStreamQueueMapper(numQueues, providerName);
+            streamShardMapper = new HashRingBasedStreamQueueMapper(numShards, providerName);
             adapterCache = new SimpleQueueAdapterCache(cacheSize, logger);
             if (StreamFailureHandlerFactory == null)
             {
@@ -86,7 +86,7 @@ namespace TestKinesisStreamProvider
         /// <summary>Creates the Azure Queue based adapter.</summary>
         public virtual Task<IQueueAdapter> CreateAdapter()
         {
-            var adapter = new KinesisStreamAdapter<TDataAdapter>(this.adaptorFactory(), this.SerializationManager, streamQueueMapper, dataConnectionString, deploymentId, providerName, logger, messageVisibilityTimeout);
+            var adapter = new KinesisStreamShardAdapter<TDataAdapter>(this.adaptorFactory(), this.SerializationManager, streamShardMapper, dataConnectionString, deploymentId, providerName, logger, messageVisibilityTimeout);
             return Task.FromResult<IQueueAdapter>(adapter);
         }
 
@@ -99,7 +99,7 @@ namespace TestKinesisStreamProvider
         /// <summary>Creates the factory stream queue mapper.</summary>
         public IStreamQueueMapper GetStreamQueueMapper()
         {
-            return streamQueueMapper;
+            return streamShardMapper;
         }
 
         /// <summary>
