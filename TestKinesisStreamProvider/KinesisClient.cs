@@ -2,6 +2,7 @@
 using Amazon.Kinesis.Model;
 using Orleans.Runtime;
 using System;
+using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
@@ -30,17 +31,20 @@ namespace TestKinesisStreamProvider
 
             if (!streams.StreamNames.Contains(streamName))
             {
-                var createRequest = new CreateStreamRequest { StreamName = streamName, ShardCount = 1 };
-                var createResponse = await client.CreateStreamAsync(createRequest);
-                createResponse.EnsureSuccessResponse();
+                await CreateStream(streamName, 1);
             }
 
-            var describeRequest = new DescribeStreamRequest { StreamName = streamName };
-            var describeResponse = await client.DescribeStreamAsync(describeRequest);
-            describeResponse.EnsureSuccessResponse();
+            var describeResponse = await DescribeStream(streamName);
 
             ShardID = describeResponse.StreamDescription.Shards.First().ShardId;
             SequenceNumber = describeResponse.StreamDescription.Shards.First().SequenceNumberRange.StartingSequenceNumber;
+        }
+
+        public async Task<List<Shard>> GetShardsAsync()
+        {
+            var response = await DescribeStream(streamName);
+
+            return response.StreamDescription.Shards;
         }
 
         public async Task PutRecordAsync(KinesisStreamMessage message)
@@ -92,6 +96,24 @@ namespace TestKinesisStreamProvider
                 return new[] { new KinesisStreamMessage(getResponse.Records.First().Data.ToArray()) };
             }
             else return new KinesisStreamMessage[0];
+        }
+
+        private async Task<CreateStreamResponse> CreateStream(string streamName, int shardCount)
+        {
+            var createRequest = new CreateStreamRequest { StreamName = streamName, ShardCount = shardCount };
+            var createResponse = await client.CreateStreamAsync(createRequest);
+            createResponse.EnsureSuccessResponse();
+
+            return createResponse;
+        }
+
+        private async Task<DescribeStreamResponse> DescribeStream(string streamName)
+        {
+            var describeRequest = new DescribeStreamRequest { StreamName = streamName };
+            var describeResponse = await client.DescribeStreamAsync(describeRequest);
+            describeResponse.EnsureSuccessResponse();
+
+            return describeResponse;
         }
     }
 

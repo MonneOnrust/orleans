@@ -15,6 +15,8 @@ namespace TestKinesisStreamProvider
     //           topic needs more design if every event gets its own stream.
     // TODO mon: prevent double processing of events by 1 app (done by KCL through shard leasing) https://github.com/awslabs/amazon-kinesis-client/blob/master/src/main/java/com/amazonaws/services/kinesis/leases/impl/LeaseManager.java
 
+    // TODO: stop receiver if lease owner changed
+
     public class KinesisStreamShardAdapterReceiver : IQueueAdapterReceiver
     {
         private readonly SerializationManager serializationManager;
