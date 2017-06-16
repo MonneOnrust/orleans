@@ -33,7 +33,7 @@ namespace TestKinesisStreamProvider.ClientLibrary.Lib.Worker
          *
          * @return The initial position in stream.
          */
-        protected InitialPositionInStream GetInitialPositionInStream()
+        public InitialPositionInStream GetInitialPositionInStream()
         {
             return this.position;
         }

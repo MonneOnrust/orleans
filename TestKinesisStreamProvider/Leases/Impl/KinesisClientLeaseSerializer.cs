@@ -40,10 +40,10 @@ namespace TestKinesisStreamProvider.ClientLibrary.Leases.Impl
         {
             KinesisClientLease result = (KinesisClientLease)baseSerializer.FromDynamoRecord(dynamoRecord);
 
-            result.OwnerSwitchesSinceCheckpoint = DynamoUtils.SafeGetLong(dynamoRecord, OWNER_SWITCHES_KEY);
+            result.SetOwnerSwitchesSinceCheckpoint(DynamoUtils.SafeGetLong(dynamoRecord, OWNER_SWITCHES_KEY));
             result.Checkpoint = new ExtendedSequenceNumber(DynamoUtils.SafeGetString(dynamoRecord, CHECKPOINT_SEQUENCE_NUMBER_KEY),
                                                           DynamoUtils.SafeGetLong(dynamoRecord, CHECKPOINT_SUBSEQUENCE_NUMBER_KEY));
-            result.SetParentShardIds(DynamoUtils.safeGetSS(dynamoRecord, PARENT_SHARD_ID_KEY));
+            result.SetParentShardIds(DynamoUtils.SafeGetSS(dynamoRecord, PARENT_SHARD_ID_KEY));
 
             return result;
         }

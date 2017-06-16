@@ -10,8 +10,7 @@ namespace TestKinesisStreamProvider.ClientLibrary.Leases.Exceptions
   */
     public class InvalidStateException : LeasingException
     {
-
-        private static readonly long serialVersionUID = 1L;
+        //private static readonly long serialVersionUID = 1L;
 
         public InvalidStateException(String message, Exception e) : base(message, e)
         {

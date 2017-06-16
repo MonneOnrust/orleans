@@ -69,7 +69,7 @@ namespace TestKinesisStreamProvider.ClientLibrary.Lib.Worker
          * 
          * @return a list of shardId's that are parents of this shard, or empty if the shard has no parents.
          */
-        protected List<String> getParentShardIds()
+        public List<String> getParentShardIds()
         {
             return new List<String>(parentShardIds);
         }

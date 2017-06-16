@@ -3,6 +3,7 @@ using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Text;
+using TestKinesisStreamProvider.ClientLibrary.Exceptions;
 using TestKinesisStreamProvider.ClientLibrary.Interfaces;
 using TestKinesisStreamProvider.ClientLibrary.Types;
 
@@ -36,7 +37,7 @@ namespace TestKinesisStreamProvider.ClientLibrary.Lib.Worker
          * @param checkpoint Used to checkpoint progress of a RecordProcessor
          * @param validator Used for validating sequence numbers
          */
-        RecordProcessorCheckpointer(ShardInfo shardInfo, ICheckpoint checkpoint, SequenceNumberValidator validator)
+        public RecordProcessorCheckpointer(ShardInfo shardInfo, ICheckpoint checkpoint, SequenceNumberValidator validator)
         {
             this.shardInfo = shardInfo;
             this.checkpoint = checkpoint;
@@ -66,13 +67,14 @@ namespace TestKinesisStreamProvider.ClientLibrary.Lib.Worker
                 {
                     throw new ArgumentException("Could not checkpoint a null record");
                 }
+                /*
                 else if (record is UserRecord)
                 {
-                    checkpoint(record.SequenceNumber, ((UserRecord)record).getSubSequenceNumber());
-                }
+                    Checkpoint(record.SequenceNumber, ((UserRecord)record).getSubSequenceNumber());
+                }*/
                 else
                 {
-                    checkpoint(record.SequenceNumber, 0);
+                    Checkpoint(record.SequenceNumber, 0);
                 }
             }
         }
@@ -101,7 +103,7 @@ namespace TestKinesisStreamProvider.ClientLibrary.Lib.Worker
                 }
 
                 // throws exception if sequence number shouldn't be checkpointed for this shard
-                sequenceNumberValidator.validateSequenceNumber(sequenceNumber);
+                sequenceNumberValidator.ValidateSequenceNumber(sequenceNumber);
 
                 Trace.WriteLine("Validated checkpoint sequence number " + sequenceNumber + " for " + shardInfo.getShardId() + ", token " + shardInfo.getConcurrencyToken());
 
@@ -131,13 +133,13 @@ namespace TestKinesisStreamProvider.ClientLibrary.Lib.Worker
         /**
          * @return the lastCheckpointValue
          */
-        ExtendedSequenceNumber GetLastCheckpointValue()
+        public ExtendedSequenceNumber GetLastCheckpointValue()
         {
             return lastCheckpointValue;
         }
 
 
-        void SetInitialCheckpointValue(ExtendedSequenceNumber initialCheckpoint)
+        public void SetInitialCheckpointValue(ExtendedSequenceNumber initialCheckpoint)
         {
             lock (this)
             {
@@ -150,7 +152,7 @@ namespace TestKinesisStreamProvider.ClientLibrary.Lib.Worker
          *
          * @return the largest permitted checkpoint
          */
-        ExtendedSequenceNumber GetLargestPermittedCheckpointValue()
+        public ExtendedSequenceNumber GetLargestPermittedCheckpointValue()
         {
             lock (this)
             {
@@ -161,7 +163,7 @@ namespace TestKinesisStreamProvider.ClientLibrary.Lib.Worker
         /**
          * @param checkpoint the checkpoint value to set
          */
-        void SetLargestPermittedCheckpointValue(ExtendedSequenceNumber largestPermittedCheckpointValue)
+        public void SetLargestPermittedCheckpointValue(ExtendedSequenceNumber largestPermittedCheckpointValue)
         {
             lock (this)
             {
@@ -176,14 +178,13 @@ namespace TestKinesisStreamProvider.ClientLibrary.Lib.Worker
          *
          * @param extendedSequenceNumber
          */
-        void SetSequenceNumberAtShardEnd(ExtendedSequenceNumber extendedSequenceNumber)
+        public void SetSequenceNumberAtShardEnd(ExtendedSequenceNumber extendedSequenceNumber)
         {
             lock (this)
             {
                 this.sequenceNumberAtShardEnd = extendedSequenceNumber;
             }
         }
-
 
         /**
          * Internal API - has package level access only for testing purposes.
@@ -218,13 +219,13 @@ namespace TestKinesisStreamProvider.ClientLibrary.Lib.Worker
                     checkpoint.SetCheckpoint(shardInfo.getShardId(), checkpointToRecord, shardInfo.getConcurrencyToken());
                     lastCheckpointValue = checkpointToRecord;
                 }
-                catch (ThrottlingException | ShutdownException | InvalidStateException | KinesisClientLibDependencyException e) 
-                {
-                    throw e;
-                }
+                catch (ThrottlingException) { throw; }
+                catch (ShutdownException) { throw; }
+                catch (InvalidStateException) { throw; }
+                catch (KinesisClientLibDependencyException) { throw; }
                 catch (KinesisClientLibException e)
                 {
-                    Trace.WriteLine("Caught exception setting checkpoint.", e);
+                    Trace.WriteLine("Caught exception setting checkpoint.", e.ToString());
                     throw new KinesisClientLibDependencyException("Caught exception while checkpointing", e);
                 }
             }

@@ -14,7 +14,7 @@ namespace TestKinesisStreamProvider.ClientLibrary.Leases.Impl
 
         public ExtendedSequenceNumber Checkpoint { get; set; }
 
-        public long OwnerSwitchesSinceCheckpoint { get; set; } = 0L;
+        public long OwnerSwitchesSinceCheckpoint { get; private set; } = 0L;
 
         public KinesisClientLease()
         {

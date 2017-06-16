@@ -17,7 +17,7 @@ namespace TestKinesisStreamProvider.ClientLibrary.Lib.Worker
         private String nextIterator;
         private IKinesisProxy kinesisProxy;
         private readonly String shardId;
-        private bool isShardEndReached;
+        public bool IsShardEndReached { get; private set; }
         private bool isInitialized;
 
         /**
@@ -59,12 +59,12 @@ namespace TestKinesisStreamProvider.ClientLibrary.Lib.Worker
                 }
                 if (nextIterator == null)
                 {
-                    isShardEndReached = true;
+                    IsShardEndReached = true;
                 }
             }
             else
             {
-                isShardEndReached = true;
+                IsShardEndReached = true;
             }
 
             return response;
@@ -95,7 +95,7 @@ namespace TestKinesisStreamProvider.ClientLibrary.Lib.Worker
          * @param sequenceNumber advance the iterator to the record at this sequence number.
          * @param initialPositionInStream The initialPositionInStream.
          */
-        void AdvanceIteratorTo(String sequenceNumber, InitialPositionInStreamExtended initialPositionInStream)
+        public void AdvanceIteratorTo(String sequenceNumber, InitialPositionInStreamExtended initialPositionInStream)
         {
             if (sequenceNumber == null)
             {
@@ -123,7 +123,7 @@ namespace TestKinesisStreamProvider.ClientLibrary.Lib.Worker
             }
             if (nextIterator == null)
             {
-                isShardEndReached = true;
+                IsShardEndReached = true;
             }
         }
 

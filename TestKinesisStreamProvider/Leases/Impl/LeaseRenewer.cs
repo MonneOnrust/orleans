@@ -253,7 +253,7 @@ namespace TestKinesisStreamProvider.ClientLibrary.Leases.Impl
         /// <returns>non-authoritative copy of the held lease, or null if we don't currently hold it</returns>
         private T GetCopyOfHeldLease(String leaseKey, long now)
         {
-            T authoritativeLease = ownedLeases[leaseKey];
+            ownedLeases.TryGetValue(leaseKey, out T authoritativeLease);
             if (authoritativeLease == null)
             {
                 return null;
@@ -285,7 +285,7 @@ namespace TestKinesisStreamProvider.ClientLibrary.Leases.Impl
             VerifyNotNull(concurrencyToken, "concurrencyToken cannot be null");
 
             String leaseKey = lease.LeaseKey;
-            T authoritativeLease = ownedLeases[leaseKey];
+            ownedLeases.TryGetValue(leaseKey, out T authoritativeLease);
 
             if (authoritativeLease == null)
             {

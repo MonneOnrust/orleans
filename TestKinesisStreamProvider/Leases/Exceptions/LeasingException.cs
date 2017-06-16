@@ -13,6 +13,6 @@ namespace TestKinesisStreamProvider.ClientLibrary.Leases.Exceptions
         {
         }
 
-        private static readonly long serialVersionUID = 1L;
+        //private static readonly long serialVersionUID = 1L;
     }
 }

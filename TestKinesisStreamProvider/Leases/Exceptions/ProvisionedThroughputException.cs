@@ -6,7 +6,7 @@ namespace TestKinesisStreamProvider.ClientLibrary.Leases.Exceptions
 {
     public class ProvisionedThroughputException : LeasingException
     {
-        private static readonly long serialVersionUID = 1L;
+        //private static readonly long serialVersionUID = 1L;
 
         public ProvisionedThroughputException(String message, Exception e) : base(message, e)
         {

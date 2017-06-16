@@ -39,7 +39,7 @@ namespace TestKinesisStreamProvider.ClientLibrary.Leases.Utils
 
         public static long SafeGetLong(Dictionary<String, AttributeValue> dynamoRecord, String key)
         {
-            AttributeValue av = dynamoRecord[key];
+            dynamoRecord.TryGetValue(key, out AttributeValue av);
             if (av == null)
             {
                 return 0; // monne: this was return null....
@@ -52,7 +52,7 @@ namespace TestKinesisStreamProvider.ClientLibrary.Leases.Utils
 
         public static String SafeGetString(Dictionary<String, AttributeValue> dynamoRecord, String key)
         {
-            AttributeValue av = dynamoRecord[key];
+            dynamoRecord.TryGetValue(key, out AttributeValue av);
             if (av == null)
             {
                 return null;
@@ -63,9 +63,9 @@ namespace TestKinesisStreamProvider.ClientLibrary.Leases.Utils
             }
         }
 
-        public static List<String> safeGetSS(Dictionary<String, AttributeValue> dynamoRecord, String key)
+        public static List<String> SafeGetSS(Dictionary<String, AttributeValue> dynamoRecord, String key)
         {
-            AttributeValue av = dynamoRecord[key];
+            dynamoRecord.TryGetValue(key, out AttributeValue av);
 
             if (av == null)
             {
@@ -76,7 +76,5 @@ namespace TestKinesisStreamProvider.ClientLibrary.Leases.Utils
                 return av.SS;
             }
         }
-
     }
-
 }
