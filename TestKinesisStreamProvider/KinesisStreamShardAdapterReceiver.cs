@@ -10,7 +10,7 @@ using System.Threading.Tasks;
 
 namespace TestKinesisStreamProvider
 {
-    // TODO mon: implement sequence number save instead of removing records from stream
+    // TODO mon: implement checkpointing (sequence number save) instead of removing records from stream
     // TODO mon: implement sharding. This class used an Azure queue for sharding. With Kinesis you can use a stream shard, but you can also use multiple streams with one shard. This
     //           topic needs more design if every event gets its own stream.
     // TODO mon: prevent double processing of events by 1 app (done by KCL through shard leasing) https://github.com/awslabs/amazon-kinesis-client/blob/master/src/main/java/com/amazonaws/services/kinesis/leases/impl/LeaseManager.java

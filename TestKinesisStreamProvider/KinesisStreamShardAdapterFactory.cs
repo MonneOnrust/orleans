@@ -39,17 +39,13 @@ namespace TestKinesisStreamProvider
         public virtual void Init(IProviderConfiguration config, string providerName, Logger logger, IServiceProvider serviceProvider)
         {
             if (config == null) throw new ArgumentNullException(nameof(config));
-            if (!config.Properties.TryGetValue("DataConnectionString", out dataConnectionString))
-                throw new ArgumentException($"DataConnectionString property not set");
-            if (!config.Properties.TryGetValue("DeploymentId", out deploymentId))
-                throw new ArgumentException($"DeploymentId property not set");
+            if (!config.Properties.TryGetValue("DataConnectionString", out dataConnectionString)) throw new ArgumentException($"DataConnectionString property not set");
+            if (!config.Properties.TryGetValue("DeploymentId", out deploymentId)) throw new ArgumentException($"DeploymentId property not set");
             if (config.Properties.TryGetValue("VisibilityTimeout", out string messageVisibilityTimeoutRaw))
             {
-                TimeSpan messageVisibilityTimeoutTemp;
-                if (!TimeSpan.TryParse(messageVisibilityTimeoutRaw, out messageVisibilityTimeoutTemp))
+                if (!TimeSpan.TryParse(messageVisibilityTimeoutRaw, out TimeSpan messageVisibilityTimeoutTemp))
                 {
-                    throw new ArgumentException(
-                        $"Failed to parse VisibilityTimeout value '{messageVisibilityTimeoutRaw}' as a TimeSpan");
+                    throw new ArgumentException($"Failed to parse VisibilityTimeout value '{messageVisibilityTimeoutRaw}' as a TimeSpan");
                 }
 
                 messageVisibilityTimeout = messageVisibilityTimeoutTemp;
@@ -64,8 +60,7 @@ namespace TestKinesisStreamProvider
             numShards = 8;
             if (config.Properties.TryGetValue("NumQueues", out string numShardsString))
             {
-                if (!int.TryParse(numShardsString, out numShards))
-                    throw new ArgumentException($"NumQueues invalid. Must be int");
+                if (!int.TryParse(numShardsString, out numShards)) throw new ArgumentException($"NumQueues invalid. Must be int");
             }
 
             this.providerName = providerName;
@@ -73,8 +68,7 @@ namespace TestKinesisStreamProvider
             adapterCache = new SimpleQueueAdapterCache(cacheSize, logger);
             if (StreamFailureHandlerFactory == null)
             {
-                StreamFailureHandlerFactory =
-                    qid => Task.FromResult<IStreamFailureHandler>(new NoOpStreamDeliveryFailureHandler());
+                StreamFailureHandlerFactory = qid => Task.FromResult<IStreamFailureHandler>(new NoOpStreamDeliveryFailureHandler());
             }
 
             this.logger = logger;
@@ -83,7 +77,7 @@ namespace TestKinesisStreamProvider
             this.adaptorFactory = () => ActivatorUtilities.GetServiceOrCreateInstance<TDataAdapter>(serviceProvider);
         }
 
-        /// <summary>Creates the Azure Queue based adapter.</summary>
+        /// <summary>Creates the Kinesis Stream based adapter.</summary>
         public virtual Task<IQueueAdapter> CreateAdapter()
         {
             var adapter = new KinesisStreamShardAdapter<TDataAdapter>(this.adaptorFactory(), this.SerializationManager, streamShardMapper, dataConnectionString, deploymentId, providerName, logger, messageVisibilityTimeout);

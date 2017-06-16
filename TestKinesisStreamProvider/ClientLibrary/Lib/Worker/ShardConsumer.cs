@@ -126,7 +126,7 @@ namespace TestKinesisStreamProvider.ClientLibrary.Lib.Worker
                         taskOutcome = DetermineTaskOutcome();
                     }
 
-                    updateState(taskOutcome);
+                    UpdateState(taskOutcome);
                     ITask nextTask = GetNextTask();
                     if (nextTask != null)
                     {
@@ -286,7 +286,7 @@ namespace TestKinesisStreamProvider.ClientLibrary.Lib.Worker
          * 
          * @param taskOutcome The outcome of the last task
          */
-        void updateState(TaskOutcome taskOutcome)
+        void UpdateState(TaskOutcome taskOutcome)
         {
             if (taskOutcome == TaskOutcome.END_OF_SHARD)
             {
