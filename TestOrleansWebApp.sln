@@ -35,6 +35,10 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TestEventSourcingClient", "
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TestEventSourcingHost", "TestEventSourcingHost\TestEventSourcingHost.csproj", "{236AE950-301F-4FC6-9384-277681181705}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "KinesisClientLibrary", "KinesisClientLibrary\KinesisClientLibrary.csproj", "{5FFD332F-16AB-434A-B9E4-B1B55AA06A9A}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "KinesisProducerLibrary", "KinesisProducerLibrary\KinesisProducerLibrary.csproj", "{84FFB56D-52C6-483C-9E37-BD816F9BF3E3}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -85,6 +89,14 @@ Global
 		{236AE950-301F-4FC6-9384-277681181705}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{236AE950-301F-4FC6-9384-277681181705}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{236AE950-301F-4FC6-9384-277681181705}.Release|Any CPU.Build.0 = Release|Any CPU
+		{5FFD332F-16AB-434A-B9E4-B1B55AA06A9A}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{5FFD332F-16AB-434A-B9E4-B1B55AA06A9A}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{5FFD332F-16AB-434A-B9E4-B1B55AA06A9A}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{5FFD332F-16AB-434A-B9E4-B1B55AA06A9A}.Release|Any CPU.Build.0 = Release|Any CPU
+		{84FFB56D-52C6-483C-9E37-BD816F9BF3E3}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{84FFB56D-52C6-483C-9E37-BD816F9BF3E3}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{84FFB56D-52C6-483C-9E37-BD816F9BF3E3}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{84FFB56D-52C6-483C-9E37-BD816F9BF3E3}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -100,5 +112,7 @@ Global
 		{3C5C5A9E-F6D0-40A6-A248-B68413848EE1} = {A0E1D0E1-9068-46C6-A156-BD1A5AD16984}
 		{2AB7B457-E3F3-4A1B-9C5A-80DFBAD7F566} = {B1AD60CF-AD10-4E1D-8471-85E566CD018A}
 		{236AE950-301F-4FC6-9384-277681181705} = {B1AD60CF-AD10-4E1D-8471-85E566CD018A}
+		{5FFD332F-16AB-434A-B9E4-B1B55AA06A9A} = {A0E1D0E1-9068-46C6-A156-BD1A5AD16984}
+		{84FFB56D-52C6-483C-9E37-BD816F9BF3E3} = {A0E1D0E1-9068-46C6-A156-BD1A5AD16984}
 	EndGlobalSection
 EndGlobal
